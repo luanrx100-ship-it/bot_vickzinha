@@ -10,7 +10,7 @@ bot = telebot.TeleBot(os.getenv("TOKEN"))
 
 # ================= CONFIG BRAVO PAY =================
 BRAVO_API_KEY = "bp_live_xNIkbn_Z_vsF9miIxndj7zNc8XMxK5BN0QO43A"
-BRAVO_BASE_URL = "https://api.bravopay.com.br"  # Mude se a documentação for diferente
+BRAVO_BASE_URL = "https://bravopay.club/api/v1"  # Mude se a documentação for diferente
 
 def criar_pix_bravo(valor: float, descricao: str, user_id: int):
     """Cria Pix via Bravo Pay"""
