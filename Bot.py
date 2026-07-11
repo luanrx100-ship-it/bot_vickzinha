@@ -2,109 +2,104 @@ import telebot
 from telebot import types
 import os
 import requests
+import json
 from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
+
 bot = telebot.TeleBot(os.getenv("TOKEN"))
 
 # ================= CONFIG BRAVO PAY =================
 BRAVO_API_KEY = "bp_live_xNIkbn_Z_vsF9miIxndj7zNc8XMxK5BN0QO43A"
-BRAVO_BASE_URL = "https://bravopay.club/api/v1"  # Mude se a documentação for diferente
+BRAVO_BASE_URL = "https://bravopay.club/api/v1"
 
-def criar_pix_bravo(valor: float, descricao: str, user_id: int):
-    """Cria Pix via Bravo Pay"""
-    url = f"{BRAVO_BASE_URL}/pix"   # Ajuste o endpoint se necessário
+def criar_transacao_pix(valor_cents: int, descricao: str, user_id: int, customer_data: dict = None):
+    """Cria transação PIX na Bravo Pay"""
+    url = f"{BRAVO_BASE_URL}/transactions"
     
     headers = {
-        "Authorization": f"Bearer {BRAVO_API_KEY}",
         "Content-Type": "application/json",
-        "Accept": "application/json"
+        "Authorization": f"Bearer {BRAVO_API_KEY}"
     }
     
     payload = {
-        "amount": float(valor),
-        "description": descricao,
-        "reference_id": f"vick_{user_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-        "payer": {
-            "name": "Cliente"
+        "amount_cents": valor_cents,
+        "method": "pix",
+        "external_reference": f"vick_{user_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "customer": customer_data or {
+            "name": f"Cliente_{user_id}",
+            "email": f"cliente{user_id}@example.com"
         }
     }
     
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=20)
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
+        print(f"Status: {response.status_code} | Resposta: {response.text}")
         
-        print(f"Status Code: {response.status_code}")
-        print(f"Resposta: {response.text}")
-        
-        if response.status_code in [200, 201]:
-            data = response.json()
-            return data
-        else:
-            bot.send_message(user_id, f"❌ Erro na Bravo Pay: {response.status_code}")
-            return None
-    except Exception as e:
-        print(f"Erro exceção: {e}")
+        if response.status_code in (200, 201):
+            return response.json()
         return None
+    except Exception as e:
+        print(f"Erro Bravo Pay: {e}")
+        return None
+
+# ================= PRODUTOS =================
+produtos = {
+    "packfotos": {"nome": "Pack 100 Fotos Pelada", "preco": 1490},
+    "packvideos": {"nome": "Pack Fotos + Vídeos Gemendo", "preco": 1990},
+    "vip": {"nome": "Grupo VIP Completo", "preco": 2390},
+    "callvideo": {"nome": "5 Chamadas de Vídeo", "preco": 2090}
+}
 
 # ================= BOT =================
 @bot.message_handler(commands=['start', 'menu'])
 def start(message):
     markup = types.InlineKeyboardMarkup(row_width=1)
-    markup.add(types.InlineKeyboardButton("📸 Pack 100 Fotos", callback_data="packfotos"))
-    markup.add(types.InlineKeyboardButton("📹 Pack Fotos + Vídeos", callback_data="packvideos"))
-    markup.add(types.InlineKeyboardButton("👑 Grupo VIP", callback_data="vip"))
-    markup.add(types.InlineKeyboardButton("📹 5 Chamadas de Vídeo", callback_data="callvideo"))
-
+    for key, prod in produtos.items():
+        markup.add(types.InlineKeyboardButton(f"{prod['nome']} - R$ {prod['preco']/100:.2f}", callback_data=key))
+    
     bot.send_message(message.chat.id,
         "😈 <b>Vickzinhaa Safadinha</b> 🔥\n\n"
-        "Escolhe o que você quer de mim hoje safado 😏",
+        "Escolhe o que você quer fazer comigo hoje safado 😏",
         parse_mode='HTML', reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
-    if call.data == "packfotos":
-        bot.send_message(call.message.chat.id, "Digite: /packfotos")
-    elif call.data == "packvideos":
-        bot.send_message(call.message.chat.id, "Digite: /packvideos")
-    elif call.data == "vip":
-        bot.send_message(call.message.chat.id, "Digite: /vip")
-    elif call.data == "callvideo":
-        bot.send_message(call.message.chat.id, "Digite: /callvideo")
+    produto_key = call.data
+    if produto_key in produtos:
+        prod = produtos[produto_key]
+        bot.send_message(call.message.chat.id, f"Digite: /{produto_key}")
 
-# ================= COMANDOS =================
-@bot.message_handler(commands=['packfotos'])
-def packfotos(message):
-    criar_e_enviar_pix(message, "Pack 100 Fotos Pelada", 14.90)
-
-@bot.message_handler(commands=['packvideos'])
-def packvideos(message):
-    criar_e_enviar_pix(message, "Pack Fotos + Vídeos Gemendo", 19.90)
-
-@bot.message_handler(commands=['vip'])
-def vip(message):
-    criar_e_enviar_pix(message, "Grupo VIP Completo", 23.90)
-
-@bot.message_handler(commands=['callvideo'])
-def callvideo(message):
-    criar_e_enviar_pix(message, "5 Chamadas de Vídeo", 20.90)
-
-def criar_e_enviar_pix(message, produto: str, valor: float):
+# ================= COMANDOS DE COMPRA =================
+def processar_compra(message, produto_key: str):
+    prod = produtos[produto_key]
     user_id = message.from_user.id
-    bot.send_message(user_id, f"⏳ Gerando Pix para <b>{produto}</b>...", parse_mode='HTML')
     
-    pix = criar_pix_bravo(valor, produto, user_id)
+    bot.send_message(user_id, f"⏳ Gerando Pix para <b>{prod['nome']}</b>...", parse_mode='HTML')
     
-    if pix:
-        qr_code = pix.get('qr_code') or pix.get('pix_code') or pix.get('payload')
-        if qr_code:
-            bot.send_message(user_id, f"✅ Pix gerado!\n\nCopie o código abaixo:")
-            bot.send_message(user_id, f"<code>{qr_code}</code>", parse_mode='HTML')
-            bot.send_message(user_id, "Pague e mande o comprovante aqui que eu libero tudo 😈")
-            return
+    # Dados do cliente (pode melhorar pedindo nome/email)
+    customer = {
+        "name": message.from_user.first_name or "Cliente",
+        "email": f"user{user_id}@example.com"
+    }
     
-    # Fallback se der erro
-    bot.send_message(user_id, "❌ Não consegui gerar o Pix automático.\nFaça o Pix manual e mande o comprovante.")
+    transacao = criar_transacao_pix(prod['preco'], prod['nome'], user_id, customer)
+    
+    if transacao and transacao.get('pix', {}).get('copy_paste'):
+        pix_data = transacao['pix']
+        bot.send_message(user_id, f"✅ Pix gerado para {prod['nome']}\n\n"
+                                  f"Valor: R$ {prod['preco']/100:.2f}\n\n"
+                                  f"Copie o código abaixo:")
+        bot.send_message(user_id, f"<code>{pix_data['copy_paste']}</code>", parse_mode='HTML')
+        bot.send_message(user_id, "Pague e mande o comprovante aqui que eu libero na hora 😈")
+    else:
+        bot.send_message(user_id, "❌ Erro ao gerar Pix. Tente novamente.")
 
-print("😈 Vickzinhaa com Bravo Pay está online...")
+@bot.message_handler(commands=['packfotos', 'packvideos', 'vip', 'callvideo'])
+def handle_compra(message):
+    cmd = message.text.replace('/', '')
+    processar_compra(message, cmd)
+
+print("😈 Vickzinhaa Safadinha com Bravo Pay está online...")
 bot.infinity_polling()
