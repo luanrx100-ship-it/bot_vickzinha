@@ -5,44 +5,58 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
+
 bot = telebot.TeleBot(os.getenv("TOKEN"))
+BRAVO_KEY = os.getenv("BRAVO_KEY")
 
-BRAVO_KEY = "bp_live_xNIkbn_Z_vsF9miIxndj7zNc8XMxK5BN0QO43A"
-
-def gerar_pix(valor, descricao, user_id):
+def criar_pix_bravo(valor_cents: int, descricao: str, user_id: int):
     url = "https://bravopay.club/api/v1/transactions"
     headers = {
         "Authorization": f"Bearer {BRAVO_KEY}",
         "Content-Type": "application/json"
     }
-    data = {
-        "amount_cents": valor,
+    payload = {
+        "amount_cents": valor_cents,
         "method": "pix",
-        "external_reference": f"vick_{user_id}"
+        "external_reference": f"vick_{user_id}_{int(os.times() [0])}"
     }
     
     try:
-        r = requests.post(url, headers=headers, json=data)
-        print("Status:", r.status_code)
-        print("Resposta:", r.text)
-        return r.json() if r.ok else None
+        response = requests.post(url, headers=headers, json=payload, timeout=15)
+        print(f"Status Code: {response.status_code}")
+        print(f"Resposta: {response.text}")
+        return response.json() if response.ok else None
     except Exception as e:
-        print("Erro:", e)
+        print(f"Erro: {e}")
         return None
 
-@bot.message_handler(commands=['start'])
+# ================= BOT =================
+@bot.message_handler(commands=['start', 'menu'])
 def start(message):
-    bot.send_message(message.chat.id, "Use /packfotos para testar")
+    markup = types.InlineKeyboardMarkup(row_width=1)
+    markup.add(types.InlineKeyboardButton("📸 Pack 100 Fotos", callback_data="packfotos"))
+    markup.add(types.InlineKeyboardButton("📹 Pack + Vídeos", callback_data="packvideos"))
+    markup.add(types.InlineKeyboardButton("👑 Grupo VIP", callback_data="vip"))
+    markup.add(types.InlineKeyboardButton("📹 5 Calls Vídeo", callback_data="callvideo"))
 
-@bot.message_handler(commands=['packfotos'])
-def packfotos(message):
-    bot.send_message(message.chat.id, "Gerando Pix...")
-    result = gerar_pix(1490, "Pack 100 Fotos", message.from_user.id)
-    
-    if result and 'pix' in result:
-        bot.send_message(message.chat.id, f"✅ Pix:\n\n{result['pix'].get('copy_paste', 'Sem código')}")
-    else:
-        bot.send_message(message.chat.id, "❌ Falhou. Me manda o que apareceu no terminal.")
+    bot.send_message(message.chat.id, "😈 Vickzinhaa Safadinha online... Escolhe seu desejo 🔥", reply_markup=markup)
 
-print("Bot rodando...")
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+    cmds = {
+        "packfotos": ("Pack 100 Fotos Pelada", 1490),
+        "packvideos": ("Pack Fotos + Vídeos", 1990),
+        "vip": ("Grupo VIP Completo", 2390),
+        "callvideo": ("5 Chamadas de Vídeo", 2090)
+    }
+    if call.data in cmds:
+        nome, valor = cmds[call.data]
+        bot.send_message(call.message.chat.id, f"Gerando Pix para {nome}...")
+        result = criar_pix_bravo(valor, nome, call.from_user.id)
+        if result and result.get('pix'):
+            bot.send_message(call.message.chat.id, f"✅ Pix gerado!\n\n{result['pix'].get('copy_paste', 'Sem código')}")
+        else:
+            bot.send_message(call.message.chat.id, "❌ Erro na Bravo Pay. Veja o terminal.")
+
+print("Bot com Bravo Pay rodando...")
 bot.infinity_polling()
