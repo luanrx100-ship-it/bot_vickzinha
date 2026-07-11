@@ -9,72 +9,55 @@ bot = telebot.TeleBot(os.getenv("TOKEN"))
 @bot.message_handler(commands=['start', 'menu'])
 def start(message):
     markup = types.InlineKeyboardMarkup(row_width=1)
-    markup.add(types.InlineKeyboardButton("🔥 Quero ver seus packs", callback_data="packs"))
-    markup.add(types.InlineKeyboardButton("👑 Quero ser VIP", callback_data="vip"))
-    markup.add(types.InlineKeyboardButton("📞 Quero te ligar", callback_data="call"))
-    markup.add(types.InlineKeyboardButton("😏 Ver amostra", callback_data="amostra"))
+    markup.add(types.InlineKeyboardButton("🔥 Pack 100 Fotos", callback_data="packfotos"))
+    markup.add(types.InlineKeyboardButton("📹 Pack Fotos + Vídeos", callback_data="packvideos"))
+    markup.add(types.InlineKeyboardButton("👑 Grupo VIP Completo", callback_data="vip"))
+    markup.add(types.InlineKeyboardButton("📹 5 Chamadas de Vídeo", callback_data="call"))
 
-    texto = """😈 <b>Oi safado... bem vindo ao meu cantinho</b> 🔥
+    texto = """😈 <b>Oi safado... bem vindo à Vickzinhaa Safadinha</b> 🔥
 
-Eu sou a Vickzinhaa Safadinha... 
-aquela que adora provocar e mostrar tudinho pra você.
-
-Tá com tesão? Então escolhe o que você quer fazer comigo 👇"""
+Tá com vontade de me ver peladinha? Escolhe o que quer fazer comigo 😏"""
 
     bot.send_message(message.chat.id, texto, parse_mode='HTML', reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
-    if call.data == "packs":
-        texto = """<b>🔥 MEUS PACKS BEM SAFADOS</b>
-
-📸 <b>Pack 100 Fotos Pelada</b> — R$ 14,90
-📹 <b>Pack Fotos + Vídeos Gemendo</b> — R$ 19,90
-👑 <b>Grupo VIP Completo (tudo liberado)</b> — R$ 23,90
-
-Digite o número do que você quer ver de mim:
-/comprar 1
-/comprar 2
-/comprar 3"""
-
-        bot.send_message(call.message.chat.id, texto, parse_mode='HTML')
-
+    if call.data == "packfotos":
+        bot.send_message(call.message.chat.id, "📸 <b>Pack 100 Fotos Pelada</b> — R$ 14,90\n\nDigite: /packfotos")
+    elif call.data == "packvideos":
+        bot.send_message(call.message.chat.id, "📹 <b>Pack Fotos + Vídeos Gemendo</b> — R$ 19,90\n\nDigite: /packvideos")
     elif call.data == "vip":
-        bot.send_message(call.message.chat.id, "👑 Quer ter acesso total a mim todo dia? Digite /comprar 3 safado 🔥")
-
+        bot.send_message(call.message.chat.id, "👑 <b>Grupo VIP Completo</b> — R$ 23,90\n\nDigite: /vip")
     elif call.data == "call":
-        bot.send_message(call.message.chat.id, "📞 Quer me ligar e me ouvir gemendo até você gozar? R$ 20,90\n\nDigite: /comprar 4")
+        bot.send_message(call.message.chat.id, "📹 <b>5 Chamadas de Vídeo</b> — R$ 20,90\n\nDigite: /callvideo")
 
-    elif call.data == "amostra":
-        bot.send_message(call.message.chat.id, "😏 Olha só uma amostrinha do que eu tenho pra você... (em breve envio foto)")
+# ================= COMANDOS ESPECÍFICOS =================
+@bot.message_handler(commands=['packfotos'])
+def packfotos(message):
+    send_payment_request(message, "Pack 100 Fotos Pelada", 14.90)
 
-@bot.message_handler(commands=['comprar'])
-def comprar(message):
-    try:
-        opcao = int(message.text.split()[1])
-        itens = {
-            1: ("Pack 100 Fotos Pelada", 14.90),
-            2: ("Pack Fotos + Vídeos Gemendo", 19.90),
-            3: ("Grupo VIP Completo", 23.90),
-            4: ("Call Particular até Gozar", 20.90)
-        }
-        
-        produto, valor = itens.get(opcao, (None, None))
-        if not produto:
-            return bot.send_message(message.chat.id, "❌ Opção errada safado!")
+@bot.message_handler(commands=['packvideos'])
+def packvideos(message):
+    send_payment_request(message, "Pack Fotos + Vídeos Gemendo", 19.90)
 
-        texto = f"""😈 <b>Você quer {produto.lower()}?</b>
+@bot.message_handler(commands=['vip'])
+def vip(message):
+    send_payment_request(message, "Grupo VIP Completo", 23.90)
+
+@bot.message_handler(commands=['callvideo'])
+def callvideo(message):
+    send_payment_request(message, "5 Chamadas de Vídeo", 20.90)
+
+def send_payment_request(message, produto: str, valor: float):
+    texto = f"""😈 <b>Você escolheu:</b> {produto}
 
 💰 Valor: R$ {valor:.2f}
 
-Faz o Pix agora que eu libero tudo rapidinho pra você me ver bem safadinha 🔥
+Faz o Pix agora que eu libero tudo bem safadinha pra você 🔥
 
 Manda o comprovante aqui depois do pagamento..."""
 
-        bot.send_message(message.chat.id, texto, parse_mode='HTML')
-        
-    except:
-        bot.send_message(message.chat.id, "Use: /comprar 1, 2, 3 ou 4")
+    bot.send_message(message.chat.id, texto, parse_mode='HTML')
 
-print("😈 Vickzinhaa Safadinha está bem molhadinha e online...")
+print("😈 Vickzinhaa Safadinha está online...")
 bot.infinity_polling()
