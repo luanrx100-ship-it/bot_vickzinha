@@ -22,6 +22,7 @@ def criar_transacao(valor_cents, descricao, user_id):
         "external_reference": f"vick_{user_id}"
     }
     r = requests.post(url, headers=headers, json=payload, timeout=15)
+    print("Criação Status:", r.status_code)
     return r.json() if r.ok else None
 
 def consultar_transacao(tx_id):
@@ -30,7 +31,6 @@ def consultar_transacao(tx_id):
     r = requests.get(url, headers=headers, timeout=10)
     return r.json() if r.ok else None
 
-# ================= MENU =================
 @bot.message_handler(commands=['start', 'menu'])
 def start(message):
     markup = types.InlineKeyboardMarkup(row_width=1)
@@ -54,28 +54,34 @@ def callback(call):
         return
     
     nome, valor = produtos[call.data]
-    bot.send_message(call.message.chat.id, f"⏳ Gerando Pix para {nome}... Aguarde.")
+    bot.send_message(call.message.chat.id, f"⏳ Gerando Pix para {nome}... Aguarde um momento.")
 
     tx = criar_transacao(valor, nome, call.from_user.id)
     if not tx or not tx.get("id"):
-        bot.send_message(call.message.chat.id, "❌ Erro ao criar transação.")
+        bot.send_message(call.message.chat.id, "❌ Erro ao criar Pix.")
         return
 
     tx_id = tx["id"]
+    print(f"Transação criada: {tx_id}")
 
-    # Espera o Pix ficar pronto
-    for _ in range(10):   # tenta por até 50 segundos
+    # Polling mais longo
+    for i in range(15):  # até 75 segundos
         time.sleep(5)
         tx_atual = consultar_transacao(tx_id)
         
-        if tx_atual and tx_atual.get("pix", {}).get("copy_paste"):
-            code = tx_atual["pix"]["copy_paste"]
-            bot.send_message(call.message.chat.id, "✅ **Pix gerado com sucesso!**")
-            bot.send_message(call.message.chat.id, f"<code>{code}</code>", parse_mode='HTML')
-            bot.send_message(call.message.chat.id, "Pague e mande o comprovante aqui que eu libero na hora 😈")
-            return
-    
-    bot.send_message(call.message.chat.id, "⏳ Pix ainda está gerando. Tente novamente em 30 segundos.")
+        if tx_atual:
+            pix = tx_atual.get("pix", {})
+            status = tx_atual.get("status")
+            print(f"Tentativa {i+1} - Status: {status} | Pix: {pix.get('copy_paste') is not None}")
+            
+            if pix.get("copy_paste"):
+                code = pix["copy_paste"]
+                bot.send_message(call.message.chat.id, "✅ **Pix gerado com sucesso!**")
+                bot.send_message(call.message.chat.id, f"<code>{code}</code>", parse_mode='HTML')
+                bot.send_message(call.message.chat.id, "Pague e mande o comprovante aqui que eu libero na hora 😈")
+                return
+
+    bot.send_message(call.message.chat.id, "⏳ O Pix ainda está sendo gerado. Tente novamente em 1 minuto.")
 
 print("😈 Vickzinhaa Safadinha está online...")
 bot.infinity_polling()
