@@ -21,9 +21,7 @@ def criar_transacao(valor_cents, descricao, user_id):
         "method": "pix",
         "external_reference": f"vick_{user_id}"
     }
-    
     r = requests.post(url, headers=headers, json=payload, timeout=15)
-    print("Criação:", r.status_code)
     return r.json() if r.ok else None
 
 def consultar_transacao(tx_id):
@@ -32,7 +30,7 @@ def consultar_transacao(tx_id):
     r = requests.get(url, headers=headers, timeout=10)
     return r.json() if r.ok else None
 
-# ================= BOT =================
+# ================= MENU =================
 @bot.message_handler(commands=['start', 'menu'])
 def start(message):
     markup = types.InlineKeyboardMarkup(row_width=1)
@@ -41,40 +39,43 @@ def start(message):
     markup.add(types.InlineKeyboardButton("👑 Grupo VIP - R$23,90", callback_data="vip"))
     markup.add(types.InlineKeyboardButton("📹 5 Calls - R$20,90", callback_data="callvideo"))
 
-    bot.send_message(message.chat.id, "😈 Vickzinhaa Safadinha online... Escolhe seu desejo 🔥", reply_markup=markup)
+    bot.send_message(message.chat.id, "😈 Vickzinhaa Safadinha online...\nEscolhe o que você quer 🔥", reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     produtos = {
-        "packfotos": ("Pack 100 Fotos", 1490),
+        "packfotos": ("Pack 100 Fotos Pelada", 1490),
         "packvideos": ("Pack Fotos + Vídeos", 1990),
-        "vip": ("Grupo VIP", 2390),
+        "vip": ("Grupo VIP Completo", 2390),
         "callvideo": ("5 Chamadas de Vídeo", 2090)
     }
     
-    nome, valor = produtos.get(call.data, ("Produto", 1490))
-    bot.send_message(call.message.chat.id, f"⏳ Gerando Pix para {nome}...")
+    if call.data not in produtos:
+        return
+    
+    nome, valor = produtos[call.data]
+    bot.send_message(call.message.chat.id, f"⏳ Gerando Pix para {nome}... Aguarde.")
 
     tx = criar_transacao(valor, nome, call.from_user.id)
     if not tx or not tx.get("id"):
-        bot.send_message(call.message.chat.id, "❌ Erro ao criar Pix.")
+        bot.send_message(call.message.chat.id, "❌ Erro ao criar transação.")
         return
 
     tx_id = tx["id"]
-    
-    # Polling (espera o Pix ficar pronto)
-    for i in range(12):  # tenta por até 1 minuto
+
+    # Espera o Pix ficar pronto
+    for _ in range(10):   # tenta por até 50 segundos
         time.sleep(5)
         tx_atual = consultar_transacao(tx_id)
         
         if tx_atual and tx_atual.get("pix", {}).get("copy_paste"):
-            pix_code = tx_atual["pix"]["copy_paste"]
-            bot.send_message(call.message.chat.id, "✅ Pix gerado!\n\nCopie o código abaixo:")
-            bot.send_message(call.message.chat.id, f"<code>{pix_code}</code>", parse_mode='HTML')
-            bot.send_message(call.message.chat.id, "Pague e mande o comprovante aqui 🔥")
+            code = tx_atual["pix"]["copy_paste"]
+            bot.send_message(call.message.chat.id, "✅ **Pix gerado com sucesso!**")
+            bot.send_message(call.message.chat.id, f"<code>{code}</code>", parse_mode='HTML')
+            bot.send_message(call.message.chat.id, "Pague e mande o comprovante aqui que eu libero na hora 😈")
             return
     
-    bot.send_message(call.message.chat.id, "⏳ Pix ainda gerando. Tente novamente em 30 segundos.")
+    bot.send_message(call.message.chat.id, "⏳ Pix ainda está gerando. Tente novamente em 30 segundos.")
 
-print("😈 Vickzinhaa Safadinha com Bravo Pay está online...")
+print("😈 Vickzinhaa Safadinha está online...")
 bot.infinity_polling()
