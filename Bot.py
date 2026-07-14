@@ -2,6 +2,7 @@ import telebot
 from telebot import types
 import os
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
@@ -38,10 +39,6 @@ def send_payment(message, produto, valor):
 
 🛍️ Produto: <b>{produto}</b>
 💰 Valor: R$ {valor:.2f}
-
-✅ Faça o Pix e envie o comprovante aqui:
-
-<code>{CHAVE_PIX}</code>
 
 Assim que eu confirmar o pagamento, te libero o conteúdo na hora 🔥"""
 
