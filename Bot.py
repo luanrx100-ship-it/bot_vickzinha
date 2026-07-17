@@ -15,16 +15,21 @@ CHECKOUT_VIP = "https://checkoutseguro.ru/checkout/cmrom633j0nzn01ogc77yyrcg?off
 
 @bot.message_handler(commands=['start', 'menu'])
 def start(message):
-    markup = types.InlineKeyboardMarkup(row_width=1)
+    # Envia a foto primeiro
+    bot.send_photo(
+        message.chat.id,
+        photo="AgACAgEAAxkBAAEgj5dqWqwze2RzvRuaXmxZyY3rSbd5ggACAw1rG3UO2EZuY2K03AR3GgEAAwIAA3kAAz0E",
+        caption="😈 <b>Amandinha Safadinha</b> 🔥\n\n💦 Tá com tesão e quer se divertir comigo?",
+        parse_mode='HTML'
+    )
     
+    markup = types.InlineKeyboardMarkup(row_width=1)
     markup.add(types.InlineKeyboardButton("📸 100 Fotos Pelada - R$14,90", callback_data="packfotos"))
     markup.add(types.InlineKeyboardButton("📹 Pack Fotos + Vídeos Gemendo - R$19,90", callback_data="packvideos"))
     markup.add(types.InlineKeyboardButton("👑 VIP Vitalício - Acesso para Sempre - R$23,90", callback_data="vip"))
     markup.add(types.InlineKeyboardButton("📹 5 Chamadas de Vídeo Hot - R$20,00", callback_data="callvideo"))
 
     bot.send_message(message.chat.id,
-        "😈 <b>Amandinhaa Safadinhaa</b> 🔥\n\n"
-        "💦 Tá com tesão e quer se divertir comigo?\n\n"
         "<b>Escolhe seu desejo abaixo safado 😏</b>",
         parse_mode='HTML', reply_markup=markup)
 
@@ -39,9 +44,7 @@ def callback(call):
             "💦 100 fotos exclusivas, bem safadas e sem censura...\n"
             "Só pra você se deliciar quantas vezes quiser!\n\n"
             "🚀 <b>Quer ver tudo agora?</b>\n\n"
-            "🔗 <b>Clique no link e libere seu pack na hora:</b>\n\n"
-            f"{CHECKOUT_PACKFOTOS}\n\n"
-            "😏 Corre que tá quente demais...",
+            f"🔗 <b>Clique aqui e libere seu pack na hora:</b>\n\n{CHECKOUT_PACKFOTOS}",
             disable_web_page_preview=False, parse_mode='HTML')
         return
 
@@ -50,10 +53,8 @@ def callback(call):
         bot.send_message(call.message.chat.id,
             "💥 <b>PACK COMPLETO - FOTOS + VÍDEOS</b> 😈💦\n\n"
             "📸 Fotos exclusivas + 📹 Vídeos meus gemendo bem gostoso\n\n"
-            "🔥 <b>Imagina eu gemendo seu nome só pra você...</b>\n\n"
-            "🔗 <b>Clique abaixo e vem se satisfazer agora:</b>\n\n"
-            f"{CHECKOUT_PACKVIDEOS}\n\n"
-            "😈 Tô molhadinha te esperando...",
+            "🔥 Imagina eu gemendo seu nome só pra você...\n\n"
+            f"🔗 <b>Clique aqui e vem se satisfazer agora:</b>\n\n{CHECKOUT_PACKVIDEOS}",
             disable_web_page_preview=False, parse_mode='HTML')
         return
 
@@ -65,10 +66,7 @@ def callback(call):
             "✅ Conteúdos novos toda semana\n"
             "✅ Fotos, vídeos exclusivos e conversas diárias\n\n"
             "💰 Valor: <b>R$ 23,90</b>\n\n"
-            "🔥 <b>Quer ter acesso ilimitado a mim?</b>\n\n"
-            "🔗 <b>Clique no link e garanta seu VIP vitalício agora:</b>\n\n"
-            f"{CHECKOUT_VIP}\n\n"
-            "😏 Te espero lá dentro bem safada...",
+            f"🔗 <b>Clique aqui e garanta seu VIP vitalício agora:</b>\n\n{CHECKOUT_VIP}",
             disable_web_page_preview=False, parse_mode='HTML')
         return
 
@@ -79,11 +77,10 @@ def callback(call):
             "Você comanda e eu realizo todas as suas fantasias ao vivo...\n\n"
             "🔥 Até você gozar gostoso várias vezes\n\n"
             "🔗 <b>Clique abaixo para pagar e agendar:</b>\n\n"
-            "https://checkoutseguro.ru/checkout/cmr9fvt3t0bh601o85363wyez?code=8pow9qx&offer=LZRMXM1\n\n"
-            "😏 Tô ansiosa pra te ver...",
+            "https://checkoutseguro.ru/checkout/cmr9fvt3t0bh601o85363wyez?code=8pow9qx&offer=LZRMXM1",
             disable_web_page_preview=False, parse_mode='HTML')
         return
 
 
-print("😈 Amandinhaa Safadinhaa está online...")
+print("😈 Amandinha Safadinha está online...")
 bot.infinity_polling()
