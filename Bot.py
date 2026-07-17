@@ -14,7 +14,7 @@ def start(message):
     markup.add(types.InlineKeyboardButton("📸 Pack 100 Fotos - R$14,90", callback_data="packfotos"))
     markup.add(types.InlineKeyboardButton("📹 Pack Fotos + Vídeos - R$19,90", callback_data="packvideos"))
     markup.add(types.InlineKeyboardButton("👑 Grupo VIP - R$23,90", callback_data="vip"))
-    markup.add(types.InlineKeyboardButton("📹 5 Chamadas de Vídeo - R$20,90", callback_data="callvideo"))
+    markup.add(types.InlineKeyboardButton("📹 5 Chamadas de Vídeo - R$20,00", callback_data="callvideo"))
 
     bot.send_message(message.chat.id,
         "😈 <b>Amandinhaa Safadinhaa</b> 🔥\n\n"
@@ -25,7 +25,8 @@ def start(message):
 def callback(call):
     if call.data == "callvideo":
         bot.send_message(call.message.chat.id,
-            "📹 <b>5 Chamadas de Vídeo</b>\n\n"
+            "📹 5 Chamadas de Vídeo ate vc gozar gostoso 😈💦\n\n"
+                         
             "Valor: R$ 20,90\n\n"
             "🔗 Clique no link abaixo para pagar e agendar suas chamadas:\n\n"
             "https://checkoutseguro.ru/checkout/cmr9fvt3t0bh601o85363wyez?code=8pow9qx&offer=LZRMXM1",
