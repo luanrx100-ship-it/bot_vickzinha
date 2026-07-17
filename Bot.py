@@ -2,12 +2,11 @@ import telebot
 from telebot import types
 import os
 from dotenv import load_dotenv
-import requests
 
 load_dotenv()
 
 bot = telebot.TeleBot(os.getenv("TOKEN"))
-CHAVE_PIX = os.getenv("CHAVE_PIX")
+CHAVE_PIX = os.getenv("CHAVE_PIX", "sua_chave_pix_aqui")
 
 @bot.message_handler(commands=['start', 'menu'])
 def start(message):
@@ -18,31 +17,40 @@ def start(message):
     markup.add(types.InlineKeyboardButton("📹 5 Chamadas de Vídeo - R$20,90", callback_data="callvideo"))
 
     bot.send_message(message.chat.id,
-        "😈 <b>Vickzinhaa Safadinha</b> 🔥\n\n"
-        "Oi safado... pronto pra se divertir comigo? 🔥\n"
-        "Escolhe o que você quer:",
+        "😈 <b>Amandinhaa Safadinhaa</b> 🔥\n\n"
+        "Tá com tesão? Escolhe o que você quer fazer comigo hoje safado 😏",
         parse_mode='HTML', reply_markup=markup)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
-    if call.data == "packfotos":
-        send_payment(call.message, "Pack 100 Fotos Pelada", 14.90)
-    elif call.data == "packvideos":
-        send_payment(call.message, "Pack Fotos + Vídeos Gemendo", 19.90)
-    elif call.data == "vip":
-        send_payment(call.message, "Grupo VIP Completo", 23.90)
-    elif call.data == "callvideo":
-        send_payment(call.message, "5 Chamadas de Vídeo", 20.90)
+    if call.data == "callvideo":
+        bot.send_message(call.message.chat.id,
+            "📹 <b>5 Chamadas de Vídeo</b>\n\n"
+            "Valor: R$ 20,90\n\n"
+            "🔗 Clique no link abaixo para pagar e agendar suas chamadas:\n\n"
+            "https://checkoutseguro.ru/checkout/cmr9fvt3t0bh601o85363wyez?code=8pow9qx&offer=LZRMXM1",
+            disable_web_page_preview=False)
+        return
 
-def send_payment(message, produto, valor):
-    texto = f"""😈 <b>Pedido Recebido!</b>
+    # Outros produtos (Pix normal)
+    produtos = {
+        "packfotos": ("Pack 100 Fotos Pelada", 14.90),
+        "packvideos": ("Pack Fotos + Vídeos Gemendo", 19.90),
+        "vip": ("Grupo VIP Completo", 23.90)
+    }
+    
+    if call.data in produtos:
+        nome, valor = produtos[call.data]
+        texto = f"""😈 <b>Pedido Recebido!</b>
 
-🛍️ Produto: <b>{produto}</b>
+Produto: <b>{nome}</b>
 💰 Valor: R$ {valor:.2f}
 
-Assim que eu confirmar o pagamento, te libero o conteúdo na hora 🔥"""
+Faça o Pix e manda o comprovante aqui que eu libero tudo rapidinho 🔥
 
-    bot.send_message(message.chat.id, texto, parse_mode='HTML')
+Chave Pix: <code>{CHAVE_PIX}</code>"""
+        
+        bot.send_message(call.message.chat.id, texto, parse_mode='HTML')
 
-print("😈 Vickzinhaa Safadinha está online...")
+print("😈 Amandinhaa Safadinhaa está online...")
 bot.infinity_polling()
