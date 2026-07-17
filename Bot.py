@@ -33,10 +33,10 @@ def callback(call):
     # === PACK 100 FOTOS ===
     if call.data == "packfotos":
         bot.send_message(call.message.chat.id,
-            "🔥 <b>Pack 100 Fotos Pelada</b> 😈\n\n"
+            "🔥 Pack 100 Fotos Pelada😈\n\n"
             "💦 100 fotos bem safadas, sem censura e só pra você...\n\n"
-            "🚀 <b>Quer ver tudinho agora?</b>\n\n"
-            "🔗 <b>Clique no link abaixo e libera o pack na hora:</b>\n\n"
+            "🚀 Quer ver tudinho agora?\n\n"
+            "🔗 Clique no link abaixo e libera o pack na hora:\n\n"
             f"{CHECKOUT_PACKFOTOS}\n\n"
             "😏 Corre que tá quente...",
             disable_web_page_preview=False)
@@ -45,11 +45,11 @@ def callback(call):
     # === PACK FOTOS + VÍDEOS ===
     if call.data == "packvideos":
         bot.send_message(call.message.chat.id,
-            "💥 <b>Pack Completo: Fotos + Vídeos Gemendo</b> 😈💦\n\n"
+            "💥 Pack Completo: 50 Fotos + 50 Vídeos sem censura que vc vai amar 😈💦\n\n"
             "📸 + 📹 O pacote mais quente que eu tenho...\n"
             "Fotos exclusivas + vídeos meus gemendo bem gostoso pra você\n\n"
-            "🔥 <b>Imagina eu gemendo seu nome enquanto você me assiste...</b>\n\n"
-            "🔗 <b>Clique aqui e vem se satisfazer agora:</b>\n\n"
+            "🔥 Imagina eu gemendo seu nome enquanto você me assiste...\n\n"
+            "🔗 Clique aqui e vem se satisfazer agora:\n\n"
             f"{CHECKOUT_PACKVIDEOS}\n\n"
             "Não perca tempo safado, tô molhadinha te esperando 🔥",
             disable_web_page_preview=False)
@@ -58,10 +58,10 @@ def callback(call):
     # === CHAMADAS DE VÍDEO ===
     if call.data == "callvideo":
         bot.send_message(call.message.chat.id,
-            "📹 <b>5 Chamadas de Vídeo Hot</b> 😈💦\n\n"
+            "📹 5 Chamadas de Vídeo Hot 😈💦\n\n"
             "Você manda e eu realizo todas as suas fantasias ao vivo...\n\n"
             "🔥 Até você gozar gostoso várias vezes\n\n"
-            "🔗 <b>Clique abaixo para pagar e agendar suas chamadas:</b>\n\n"
+            "🔗 Clique abaixo para pagar e agendar suas chamadas:\n\n"
             "https://checkoutseguro.ru/checkout/cmr9fvt3t0bh601o85363wyez?code=8pow9qx&offer=LZRMXM1\n\n"
             "😏 Tô ansiosa pra te ver...",
             disable_web_page_preview=False)
