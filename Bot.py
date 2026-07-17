@@ -36,7 +36,7 @@ def callback(call):
         bot.send_message(call.message.chat.id,
             "🔥 Pack 100 Fotos Pelada 😈\n\n"
             "💦 100 fotos bem safadas, sem censura e só pra você...\n\n"
-            "🚀 <b>Quer ver tudinho agora?</b>\n\n"
+            "🚀 Quer ver tudinho agora?\n\n"
             "🔗 Clique no link abaixo e libera o pack na hora:\n\n"
             f"{CHECKOUT_PACKFOTOS}\n\n"
             "😏 Corre que tá quente...",
